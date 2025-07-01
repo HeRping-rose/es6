@@ -104,11 +104,6 @@ console.log(o);//undefine
 
 
 
-
-
-
-
-
 // //箭头函数
 const add = (a, b) => a + b; // 箭头函数
 console.log(add(2, 3)); // 输出: 5
