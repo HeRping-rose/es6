@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <span id="meText"> meText</span>
+        <span id="meText1"> meText</span>
+
+        <p id="meDesc"> meDesc</p>
+    </div>
+
+    <script>
+        function http(url,method) {
+
+            let p=new  Promise((resolve,reject)=>{
+            // 1.创建一个 XMLHttpRequest 对象
+            let xhr=new XMLHttpRequest();//创建实例化对象
+            // 2.设置请求 发送前的配置
+            xhr.open("GET","https://jsonplaceholder.typicode.com/photos/1",true);
+            // 3.设置响应类型
+            xhr.onload=function(){
+                if(xhr.status==200){ //如果响应状态码是200，表示请求成功
+                    console.log(xhr.responseText);//响应数据
+                    resolve(xhr.responseText);
+                }else{
+                    reject("请求失败");
+                }
+            }
+            // 4.发送请求  需要异步
+            xhr.send();
+        });
+        return p;
+        }
+
+        // p.then((data)=>{
+        //     console.log(data);
+        // }).catch((error)=>{
+        //     console.log(error);
+        // });
+
+        async function use(){
+            // 等待一个 异步事件处理结果 (把then的返回值 返回执行)
+            // 用了await 就不需要then了
+            let res1=await http("https://jsonplaceholder.typicode.com/photos/1","GET")
+            console.log(res1);
+            document.getElementById("meText").innerHTML=JSON.parse(res1).title;
+            document.getElementById("meText1").innerHTML=JSON.parse(res1).title;
+            let res2=await http("https://jsonplaceholder.typicode.com/photos/2","GET")
+            document.getElementById("meDesc").innerHTML=JSON.parse(res2).url;
+        }
+        use();
+        
+
+        // // 使用封装的 http 函数 两个请求
+        // http("https://jsonplaceholder.typicode.com/photos/1","GET").then((result)=>{
+        //     let data=JSON.parse(result);
+        //     document.getElementById("meText").innerHTML=data.title;
+        // }).catch((error)=>{
+        //     console.log(error);
+        // });
+
+        // http("https://jsonplaceholder.typicode.com/photos/2","GET").then((result)=>{
+        //     let data=JSON.parse(result);
+        //     document.getElementById("meDesc").innerHTML=data.title;
+        // }).catch((error)=>{
+        //     console.log(error);
+        // });
+
+    </script>
+<!-- 
+    封装 ajax
+    <script>
+        function http(url,method) {
+        // 1.创建一个 XMLHttpRequest 对象
+        let xhr=new XMLHttpRequest();//创建实例化对象
+        // 2.设置请求 发送前的配置
+        xhr.open(method,url,true);
+        // 3.设置响应类型
+        xhr.onload=function(){
+            if(xhr.status==200){ //如果响应状态码是200，表示请求成功
+                console.log(xhr.responseText);//响应数据
+
+                // 将请求 之后的数据 单独分开 
+                // span.innerHTML=xhr.responseText;
+                // p.innerHTML=xhr.responseText;
+            }
+
+            let data=JSON.parse(xhr.responseText);
+            document.getElementById("meImg").src=data.url;
+        }
+        // 4.发送请求  需要异步
+        xhr.send();
+        }
+        http("https://jsonplaceholder.typicode.com/photos/1","GET");
+        http("https://jsonplaceholder.typicode.com/photos/2","GET");
+    </script> -->
+</body>
+</html>

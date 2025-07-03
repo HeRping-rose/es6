@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // class Plane{
+        //     constructor(type,speed,model,behavior){
+        //         this.type=type;
+        //         this.speed=speed;
+        //         this.model=model;
+        //         this.behavior=behavior;
+        //         this.fly=function(){
+        //             console.log(`The ${this.type} is flying at a speed of ${this.speed} km/h.`);
+        //         }
+        //         this.land=function(){
+        //             console.log(`The ${this.type} is landing.`);
+        //         }
+        //     }
+        // }
+        // class FighterJet extends Plane{
+        //     constructor(type,speed,model,behavior,bullets){
+        //         super(type,speed,model,behavior);
+        //         this.bullets=bullets;
+        //         this.attack=function(){
+        //             console.log(`The ${this.type} is attacking with ${this.bullets} bullets.`);
+        //         }
+        //     }
+        // }
+        // class Helicopter extends Plane{
+        //     constructor(type,speed,model,behavior,propellers){
+        //         super(type,speed,model,behavior);
+        //         this.propellers=propellers;
+        //         this.hover=function(){
+        //             console.log(`The ${this.type} is hovering with ${this.propellers} propellers.`);
+        //         }
+        //     }
+        // }
+        // let fighterJet = new FighterJet("Fighter Jet", 1200, "F-16", "aggressive", 100);
+        // fighterJet.fly();
+        // fighterJet.land();
+        // fighterJet.attack();
+
+        // let helicopter = new Helicopter("Helicopter", 500, "H-40", "defensive", 4);
+        // helicopter.fly();
+        // helicopter.land();
+        // helicopter.hover();
+
+
+        // class Weapon{
+        //     constructor(name){
+        //         this.name=name;
+        //     }
+        //     //使用方法
+        //     use(){
+        //         console.log(`Using weapon: ${this.name}`);
+        //     }
+        // }
+        // class DragonSlayingBlade extends Weapon{
+        //     constructor(name, damage){
+        //         super(name);
+        //         this.damage=damage;
+        //     }
+        //     //使用方法
+        //     use(){
+        //         console.log(`Using weapon: ${this.name} with damage: ${this.damage}`);
+        //     }
+        // }
+        // class HeavenSword extends Weapon{
+        //     constructor(name, damage){
+        //         super(name);
+        //         this.damage=damage;
+        //     }
+        //     //使用方法
+        //     use(){
+        //         console.log(`Using weapon: ${this.name} with damage: ${this.damage}`);
+        //     }
+        // }
+        // class DogfightingStick extends Weapon{
+        //     constructor(name, damage){
+        //         super(name);
+        //         this.damage=damage;
+        //     }
+        //     //使用方法
+        //     use(){
+        //         console.log(`Using weapon: ${this.name} with damage: ${this.damage}`);
+        //     }
+        // }
+        // let dragonSlayingBlade = new DragonSlayingBlade("Dragon Slaying Blade", 100);
+        // dragonSlayingBlade.use();
+        // let heavenSword = new HeavenSword("Heaven Sword", 80);
+        // heavenSword.use();
+        // let dogfightingStick = new DogfightingStick("Dogfighting Stick", 50);
+        // dogfightingStick.use();
+
+
+
+
+        class Charactor{
+            static MAX_LEVEL = 18; //静态属性 最高等级
+            constructor(name, hp, mp, attack, defense, speed){
+                this.name = name;//角色名称
+                this.hp = hp;//生命值
+                this.mp = mp;//魔法值
+                this.attack = attack;//攻击力
+                this.defense = defense;//防御力
+                this.speed = speed;//速度
+            }
+            showInfo(){
+                console.log(`${this.name} \n hp: ${this.hp}  mp: ${this.mp} \n attack: ${this.attack} defense: ${this.defense} speed: ${this.speed}`);
+            }
+            
+        }
+        class Hero extends Charactor{
+                constructor(name, hp, mp, attack, defense, speed,level) {
+                    super(name, hp, mp, attack, defense, speed);
+                    this.level = level;
+                    this.skillDamage = 30; //技能伤害
+                    //经验值
+                    this.experience = 0; //经验值
+                }
+                useSkill(target){
+                    // 攻击前先判断生命值 
+                    if(target.hp <= 0) {
+                        target.hp = 0; // 确保生命值不为负
+                        target.state = 0; // 小兵状态为0
+                        console.log(`${target.name} has been defeated!`);
+                    }else{
+                        target.hp -= this.skillDamage; // 技能伤害
+                        if(target.hp <= 0){ 
+                            this.experience += 50;//经验值加50
+                            target.hp = 0; // 确保生命值不为负
+                            target.state = 0; // 小兵状态为0
+                            console.log(`${target.name} has been defeated!`);
+                        }
+                    }
+                }
+                levelUp(){
+                    if(this.experience % 100 == 0) {
+                        // this.experience -= 100;
+                        this.hp += 10;
+                        this.mp += 5;
+                        this.attack += 2;
+                        this.defense += 2;
+                        this.speed += 2;
+                        this.level += 1;
+                        console.log(`${this.name} leveled up+1!`);
+                    }
+                }
+                showInfo(){
+                    super.showInfo();
+                    console.log(`Experience: ${this.experience}`);
+                    console.log(`Level: ${this.level}`);
+                }
+        }
+        class Minion extends Charactor{
+                constructor(name, hp, mp, attack, defense, speed) {
+                    super(name, hp, mp, attack, defense, speed);
+                    this.state = 1;//小兵状态
+                }
+                showInfo() {
+                    super.showInfo();
+                    console.log(`State: ${this.state}`);
+                }
+        }
+        let gailun = new Hero("Gailun", 100, 50, 20, 10, 15, 1);
+        gailun.showInfo();
+
+        gailun.constructor.MAX_LEVEL = 20; //修改静态属性
+        // console.log(`Max Level: ${gailun.constructor.MAX_LEVEL}`); //访问静态属性
+
+        let minion = new Minion("Minion", 50, 20, 10, 5, 10);
+        let minion2 = new Minion("Minion", 50, 20, 10, 5, 10);
+        minion.showInfo();
+
+
+        gailun.useSkill(minion);
+        gailun.useSkill(minion);
+        gailun.useSkill(minion2);
+        gailun.useSkill(minion2);
+        // gailun.useSkill(minion);
+        gailun.levelUp();
+        gailun.showInfo();
+
+        // minion.showInfo();
+
+        //第二次
+
+        // gailun.useSkill(minion2);
+        // // gailun.useSkill(minion);
+        // // gailun.useSkill(minion);
+        // gailun.levelUp();
+        // gailun.showInfo();
+
+        // minion2.showInfo();
+
+
+
+
+    </script>
+    
+</body>
+</html>

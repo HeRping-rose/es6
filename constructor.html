@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <h1>Constructor Function</h1>
+
+    <div>
+        <p id="name">name</p>
+        <p id="age">age</p>
+        <p id="gender">gender</p>
+        <p id="weight">weight</p>
+        <p id="tel">tel</p>
+        <p id="email">email</p>
+        <p id="eat">eat</p>
+        <p id="run">run</p>
+        <p id="sport">sport</p>
+        <p id="introduce">introduce</p>
+    </div>
+    <script>
+        class Teacher{
+            constructor(name,age,school){
+                this.name = name;
+                this.age=age;
+                this.school=school;
+            }
+            introduce(){
+                console.log(`我叫${this.name}，今年${this.age}岁,在哪个${this.school}上课`); 
+            }
+            giveLession(){
+                console.log(1);
+                console.log(2);
+            }
+        }
+        class JavaTeacher extends Teacher{
+            //如果加上子类自己的构造器 name就相当于 需要重新写 实例属性
+            constructor(name,age,school){
+                super(name,age,school);
+                this.tel=123;
+            }
+        }
+        class ComputerTeacher extends Teacher{
+            constructor(name,age,school,language){
+                super(name,age,school);
+                this.language=language;
+            }
+            giveLession(){
+                console.log('give lesson');
+            }
+            writeProgram(){
+                console.log(`我会${this.language}语言`);
+            }
+        }
+        class MusicTeacher extends Teacher{
+            constructor(name,age,school,instrument,type){
+                super(name,age,school);
+                this.instrument=instrument;
+                this.type=type;
+            }
+            playInstrument(){
+                console.log(`我会弹奏${this.instrument}`);
+            }
+            playMusic(){
+                console.log(`我会${this.type}乐曲`);
+            }
+        }
+
+        let java=new JavaTeacher('ron','18','beijing')
+        console.log(java);
+        java.introduce();
+        java.giveLession();
+
+        let computer=new ComputerTeacher('edy','20','shanghai','python');
+        console.log(computer);
+        computer.introduce();
+        computer.giveLession();
+        computer.writeProgram();
+
+        let music=new MusicTeacher('lily','22','shenzhen','piano','classical');
+        console.log(music);
+        music.introduce();
+        music.giveLession();
+        music.playInstrument();
+        music.playMusic();
+
+        class score{
+            static max=750; //静态属性 score.max  h或者 this.constructor.max 访问 
+            static min=0;//静态属性  
+            
+            
+            // 静态方法 中的this指向 类而不是实例对象 
+            static getMax(){
+                console.log(this.max);
+            }
+
+            constructor(chinese,math,english){
+                // this.max=750
+                // this.min=0
+                this.chinese=chinese;
+                this.math=math;
+                this.english=english;
+            }
+
+            info(){
+                // console.log(this.name);
+                this.constructor.getMax();////this.constructor.xxx()   使用
+            }
+            sum(){
+                let res=this.chinese+this.math+this.english;
+                // if(res<=this.max && res>=this.min){
+                // if(res<=score.max && res>=score.min){
+                //this.constructor  构造器  类本身
+                if(res<=this.constructor.max && res>=this.constructor.min){
+                    console.log(res);
+                }else{
+                    console.log('error');
+                }
+            }
+        }
+        let stu=new score(120,100,120);
+        stu.sum();
+        stu.info();
+
+    </script>
+
+    <!-- <script>
+        function factory(name, age) {
+            let obj={}
+            obj.name=name;
+            obj.age=age;
+            return obj;
+        }
+        let person=factory("alen",18);
+        console.log(person);
+        let person1=factory('edy',20);
+        console.log(person1);
+    </script> -->
+    <script>
+        class factory {
+            constructor(name, age) {
+                this.name=name;
+                this.age=age;
+                this.introduce=function(){
+                    return `My name is ${this.name} and I am ${this.age} years old.`;
+                }
+            }
+        }
+
+        class person{
+            constructor(name, age,gender,weight,tel,email) {
+                this.name=name;
+                this.age=age;
+                this.gender=gender;
+                this.weight=weight;
+                this.tel=tel;
+                this.email=email;
+                this.introduce=function(){
+                    return `My name is ${this.name} and I am ${this.age} years old.`;
+
+                }
+            }
+            //公用方法
+            show(){
+                document.getElementById("name").innerText = `Name: ${this.name}`;
+                document.getElementById("age").innerText = `Age: ${this.age}`;  
+                document.getElementById("gender").innerText = `Gender: ${this.gender}`;
+                document.getElementById("tel").innerText = `Tel: ${this.tel}`;
+                document.getElementById("email").innerText = `Email: ${this.email}`;
+                document.getElementById("weight").innerText = `Weight: ${this.weight}`;
+                document.getElementById("introduce").innerText = this.introduce();
+            }
+            eat(){
+                console.log(`${this.name} is eating lunch`);
+                document.getElementById("eat").innerText = `${this.name} is eating lunch`;
+            }
+            run(){
+                console.log(`${this.name} is running`);
+                document.getElementById("run").innerText = `${this.name} is running`;
+            }
+            sport(){
+                console.log(`${this.name} is playing basketball`);
+                document.getElementById("sport").innerText = `${this.name} is playing basketball`;
+            }
+        }
+
+        let person3=new person("Ron",18,"male",70,"123456789","Ron@example.com");
+        person3.name="Ronald"; //修改属性
+        person3.age=19; //修改属性
+        console.log(person3);
+        // person3.introduce();
+        console.log("🚀 ~ person3.introduce():", person3.introduce());
+        person3.show();
+        person3.eat();
+        person3.run();
+        person3.sport();
+
+        // function factory(name, age) {
+        //     // let obj={}
+        //     // this代表(看不见的)实例对象
+        //     this.name=name;
+        //     this.age=age;
+
+        //     this.say=function() {
+        //         console.log(`name:${this.name},say his age is:${this.age}`);
+        //     }
+        //     this.eat=function() {
+        //         console.log(`${this.name} is eating lunch`);
+        //     }
+        //     // return obj; 不用写返回值
+        // }
+        // //会有很大开销  实例对象的方法应该每个实例对象都拥有\
+        //     // 原型  是一个对象 存放公共的方法
+
+        // 属性找不到 undefined  方法找不到报错 
+        // factory.prototype={
+        //     //指向工厂函数
+        //     // 公用方法
+        //         sleep:function() {
+        //             console.log(`name:${this.name},say his age is:${this.age}  and is sleeping`);
+        //         },
+        //         haveDinner:function() {
+        //             console.log(`${this.name} is eating dinner`);
+        //         }
+        //     }
+        // let person=new factory("alen",18); //new 创建一个空对象 绑定this  会在函数末尾自动返回这个对象
+        // console.log(person);
+        // person.say();
+        // person.eat();
+        // person.sleep();
+        // person.haveDinner();
+
+        // let person1=new factory('edy',20);
+        // person1.say();
+        // person1.eat();
+        // person1.sleep();//f
+        // person1.haveDinner();
+    </script>
+
+</body>
+</html

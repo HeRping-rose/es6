@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <label for="account">账号：</label>
+        <input type="text" id="account" />
+    </div>
+    <div>
+        <label for="password">密码：</label>
+        <input type="password" id="password" />
+    </div>
+    <div>
+        <label for="valicode">验证码：</label>
+        <input type="text" id="valicode-input" />
+        <div id="valicode">sjd3</div>
+    </div>
+    <button id="login-btn">登录</button>
+    <script>
+        class BankAccount{
+            constructor(account,balance,userInfo,createTime,status) {
+                this.account = account;
+                this.balance = balance;
+                this.userInfo = userInfo;
+                this.createTime = createTime;
+                this.status = status;
+            }
+            deposit(){
+                console.log('存款');
+            }
+
+            withdraw(amount){
+                console.log('取款');
+            }
+            transfer(toAccount, amount) {
+                console.log(`转账到 ${toAccount.account}，金额：${amount}`);
+            }
+            //查询余额
+            checkBalance() {
+                console.log(`账户余额：${this.balance}`);
+            }
+            //账户状态更新
+            updateStatus() {
+                console.log(`账户状态：${this.status}`);
+            }
+        }
+        class CorporateAccount extends BankAccount{
+            constructor(account, password, balance, status,businessLicense,legalPerson,taxId,accountType) {
+                super(account, balance, userInfo, createTime, status);
+                this.businessLicense = businessLicense; // 营业执照
+                this.legalPerson = legalPerson; // 法人代表
+                this.taxId = taxId; // 税务登记号
+                this.accountType = accountType; // 账户类型
+            }
+            withdraw(amount) {
+                super.withdraw(amount);
+                // 银企账户取款逻辑
+                if (this.balance >= amount) {
+                    this.balance -= amount;
+                    console.log(`成功取款：${amount}，新余额：${this.balance}`);
+                } else {
+                    console.log('余额不足，取款失败');
+                }
+            }
+            transfer(toAccount, amount) {
+                super.transfer(toAccount, amount);
+                // 银企账户转账逻辑
+                if (this.balance >= amount) {
+                    this.balance -= amount;
+                    toAccount.balance += amount;
+                    console.log(`成功转账：${amount}，新余额：${this.balance}`);
+                } else {
+                    console.log('余额不足，转账失败');
+                }
+            }
+            //银企 对账
+            reconciliation(){
+
+            }
+            // 票据管理
+            billManagement(){
+
+            }
+
+        }
+        class PersonalAccount extends BankAccount{
+            constructor(account, balance,userInfo, createTime, status, idCard, customerLevel, consumeTags) {
+                super(account, balance, userInfo, createTime, status);
+                this.idCard = idCard; // 身份证号码
+                //个人客户等级
+                this.customerLevel = customerLevel; // 客户等级
+                //消费者爱好标签
+                this.consumeTags = consumeTags;
+
+            }
+            withdraw(amount) {
+                super.withdraw(amount);
+                // 个人账户取款逻辑
+                if (this.balance >= amount) {
+                    this.balance -= amount;
+                    console.log(`成功取款：${amount}，新余额：${this.balance}`);
+                } else {
+                    console.log('余额不足，取款失败');
+                }
+            }
+            //
+            transfer(toAccount, amount) {
+                super.transfer(toAccount, amount);
+                // 个人账户转账逻辑
+                if (this.balance >= amount) {
+                    this.balance -= amount;
+                    toAccount.balance += amount;
+                    console.log(`成功转账：${amount}，新余额：${this.balance}`);
+                } else {
+                    console.log('余额不足，转账失败');
+                }
+            }
+            //
+            recommendFinancialProducts(){
+                console.log('推荐金融产品');
+            }
+            consumeAnalysis(){
+                console.log('消费分析');
+            }
+        }
+
+        document.getElementById('login-btn').onclick = function () {
+            let account = document.getElementById('account').value;
+            let password = document.getElementById('password').value;
+            let valicode = document.getElementById('valicode-input').value;
+
+            if (!account || !password || !valicode) {
+                alert('请填写所有字段');
+                return;
+            }
+
+            // 这里可以添加登录逻辑
+            alert('登录成功');
+        };
+    </script>
+</body>
+</html>

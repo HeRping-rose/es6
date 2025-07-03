@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #valicode {
+        width: 100px;
+        height: 40px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        display: inline-block;
+        text-align: center;
+        line-height: 40px;
+        font-size: 20px;
+        color: #333;
+        cursor: pointer;
+    }
+</style>
+<body>
+    <div>
+        验证码
+        <div id="valicode">sjd3</div>
+    </div>
+    <script>
+        class Valicode {
+            static codeStr = '0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM'; // 静态属性，存储验证码字符集
+            static instance = null; // 静态属性，用于存储单例实例
+            constructor(el) {
+                this.el = el;// 保存元素
+                this.valicode = '';// 保存验证码
+                this.createValicode();// 生成验证码
+            }
+            
+            createValicode() {
+                let valicode = '';// 保存验证码 并且 清空之前的验证码
+                for (let i = 0; i < 4; i++) {
+                    valicode += Valicode.codeStr.charAt(Math.floor(Math.random() * Valicode.codeStr.length));
+                }
+                this.valicode = valicode;//验证码
+                console.log('生成的验证码:', this.valicode);
+                
+            }
+            //在一个范围中随机 生成一个数
+            getValicode(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+        }
+        let valicodeElement = document.getElementById('valicode');//创建一个单例
+        // 检查是否已经存在实例，如果不存在则创建一个新的实例
+        if (!Valicode.instance) {
+            Valicode.instance = new Valicode(valicodeElement);//创建一个实例
+
+        }
+
+        valicodeElement.innerHTML = Valicode.instance.valicode; // 设置验证码内容
+        valicodeElement.onclick = function () {
+            // 重新生成验证码
+            Valicode.instance.createValicode();
+            valicodeElement.innerHTML = Valicode.instance.valicode; // 更新验证码内容
+            // console.log('验证码已更新:', Valicode.instance.valicode);
+        };
+    </script>
+    
+</body>
+</html>
