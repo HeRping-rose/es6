@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    <div>
+    <!-- <div>
         <label for="account">账号：</label>
         <input type="text" id="account" />
     </div>
@@ -19,7 +19,7 @@
         <input type="text" id="valicode-input" />
         <div id="valicode">sjd3</div>
     </div>
-    <button id="login-btn">登录</button>
+    <button id="login-btn">登录</button> -->
     <script>
         // 银行账户基类
         class BankAccount{
@@ -31,7 +31,7 @@
                 this.status = status;// 账户状态（如正常、冻结等）
             }
             //存款
-            deposit(){
+            deposit(amount){
                 // console.log('存款');
                 if (amount > 0) {
                     this.balance += amount;
@@ -76,7 +76,7 @@
         }
         // 银行账户子类  对公账户
         class CorporateAccount extends BankAccount{
-            constructor(accountID, password, balance, status,businessLicense,legalPerson,taxId,accountType) {
+            constructor(accountID, balance,userInfo, createTime, status,businessLicense,legalPerson,taxId,accountType) {
                 super(accountID, balance, userInfo, createTime, status);
                 this.businessLicense = businessLicense; // 营业执照
                 this.legalPerson = legalPerson; // 法人信息
@@ -99,7 +99,7 @@
             transfer(toAccount, amount) {
                 // super.transfer(toAccount, amount);
                 // 银企账户转账逻辑
-                const dailyLimit = 1000000; // 对公账户单日转账限额
+                const dailyLimit = 1000000; // 对公账户单日转账限额 100W
                 if (amount > dailyLimit) {
                     console.log(`转账失败：单日转账金额不能超过${dailyLimit}`);
                 } else {
@@ -159,11 +159,22 @@
 
         // 示例
         const corpAccount = new CorporateAccount('C123', 500000, 'ABC Corp', '2023-01-01', 'Active', 'BL123', 'John Doe', 'TAX123', '基本户');
-        corpAccount.deposit(100000);
+        corpAccount.deposit(100000); 
         corpAccount.withdraw(60000);
+        corpAccount.withdraw(50000);
+        corpAccount.transfer(new PersonalAccount('P456', 20000, 'Jane Doe', '2023-01-01', 'Active', 'ID123', 'VIP3', ['购物', '旅游']), 30000);
+        //批量转账
+        corpAccount.batchTransfer([
+            { toAccount: new PersonalAccount('P456', 20000, 'Jane Doe', '2023-01-01', 'Active', 'ID123', 'VIP3', ['购物', '旅游']), amount: 50000 },
+            { toAccount: new PersonalAccount('P789', 30000, 'Mike Smith', '2023-01-01', 'Active', 'ID456', 'VIP2', ['电影', '游戏']), amount: 50000 }
+        ]);
+
         corpAccount.reconciliation();
 
         const personalAccount = new PersonalAccount('P456', 20000, 'Jane Doe', '2023-01-01', 'Active', 'ID123', 'VIP3', ['购物', '旅游']);
+        //存款
+        personalAccount.deposit(5000);
+        personalAccount.withdraw(2000);
         personalAccount.transfer(corpAccount, 5000);
         personalAccount.recommendFinancialProducts();
     </script>
