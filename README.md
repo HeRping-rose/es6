@@ -23,3 +23,4 @@ tsc --init
 tsc --watch xxx.ts //实时监听
 ```
 
+#### 6.ts泛型约束
