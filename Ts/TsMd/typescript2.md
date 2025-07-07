@@ -338,9 +338,50 @@ class person2{
 }
 ```
 
+抽像类： 经理写好基类，基类的方法需要实现（重写），你需要严格实现， 提供共享方法
+
+```
+// 抽象类
+abstract class Package {
+    constructor(public weight:number){}
+    // 要实现的抽象方法
+    abstract count():number
+    // 具体方法
+    show(){
+        console.log(`包裹：${this.weight}kg,费用:${this.count()}`)
+    }
+}
+
+class standerpackage extends Package {
+    constructor(weight:number,public price:number){super(weight)}
+    count(): number {
+        return this.weight * this.price
+    }
+}
+const s1 = new standerpackage(10,5)
+s1.show()
+
+class expresspackage extends Package {
+    constructor(weight:number,public price:number,public add:number){super(weight)}
+    count(): number {
+        if(this.weight>10){
+            // 超出10kg部分，每公斤多收2元
+            return 10*this.price+(this.weight-10)*this.add
+        }else{
+             return this.weight * this.price
+        }
+    }
+}
+
+const s2 = new expresspackage(10,5,2)
+s2.show()
+```
 
 
-## TypeScript接口
+
+## interface接口
+
+interface是一种定义结构的方式，主要作用是为：类、对象、函数等提供一种契约，这样可以确保代码的一致性和类型安全，但要注意interface只能定义格式。不能包含任何实现。
 
 接口起到了限制和规范的作用。接口定义了需要遵循的规范.
 
@@ -354,14 +395,36 @@ class person2{
 4. 类类型接口
 5. 接口扩展
 
+
+
+### 1.用接口定义类的结构
+
+（只有规范，没有实现，抽象类可以有具体实现）
+
 ```
-interface 只能定义对象类型：
-interface Point { x: number; y: number; } // 正确
+interface IPerson {
+    name:string
+    age:number
+    speak(n:number):void
+}
+// implements 实现 ， 就是person需要实现 iperson
+class Person2 implements IPerson {
+    constructor(public name:string,public age:number){}
+    speak(n: number): void {
+        for(let i=0;i<n;i++){
+            console.log(`你好:我是${this.name},年龄是${this.age}`)
+        }
+    }
+}
+let p = new Person2("小明",20)
+p.speak(4)
+
+//class Person2 implements IPerson, other {}  注意：一个类可以去实现多个接口
 ```
 
 
 
-### 1.属性类型接口
+### 2.接口定义对象的结构
 
 多个页面使用同样的数据类型和约定，没使用接口之前
 
@@ -384,55 +447,26 @@ var objk3:{username:string,age:number} = {username:'xiaobo',age:20}
 ```
 // 对某个变量进行约定
 interface IPeopleProps {
-    username:string,
+    username:string
     age?:number   // ?非必填，可选项
+    readonly gender:string
 }
 ```
 
 注意： 建议接口名字首字母大写
 
-#### **使用接口定义一个对象**
+##### **使用接口定义一个对象**
 
 ```
 // A页面   B页面 c页面
-var obj:IPeopleProps = {username:'xiaobai',age:10}
+var obj:IPeopleProps = {username:'xiaobai',age:10,gender:"男"}
 ```
 
 可以把接口理解为一种数据类型，使用的时候 和 简单数据类型一样 `变量名:接口名=数据`
 
 
 
-#### **初始数据的处理**
-
-在项目中，有form数据比较多的时候， 渲染赋初始值， 建议使用第二种方案；
-
-比如form表单的字段按照接口约定：
-
-```
-interface IPeopleProps {
-    username:string,
-    age?:number | null,
-    gender:string
-}
-```
-
-定义form表单的初始数据
-
-第一种方式：
-
-```
-var obj:IPeopleProps = {username:'',age:null, gender:''};
-```
-
-第二种方式：使用关键字as 断言
-
-使用as把初始值断言为某个属性类型， 接口也是数据类型， 可以理解as 把 {}强行断言为IPeopleProps接口类型，但是不能随便指定， 必须按照变量的接口类型断言
-
-```
-var obj2:IPeopleProps = {} as IPeopleProps;
-```
-
-#### 使用接口定义一个数组
+##### 使用接口定义一个数组
 
 没使用接口之前，定义数组， 而且数组每项是一个对象
 
@@ -458,71 +492,13 @@ var student1:Array<IPeopleProps> = [{username:'alice',age:20,gender:'男'}]
 
 
 
-### 2.函数的属性类型接口
-
-函数的属性类型 其实还是对属性的约束， 只是是对函数的参数进行约束
-
-需求： 定义一个函数， 函数接收一个对象类型的参数，对象有firstname，lastname2个参数
-
-之前没使用接口
-
-```
-function fullname(obj:{firstname:string,lastname:string}):string{
-    return  obj.firstname + obj.lastname;
-}
-```
-
-使用接口之后
-
-```
-// 函数属性接口
-interface IFullnameProps {
-    firstname:string,
-    lastname:string
-}
-// 在函数中使用属性接口,对属性进行约束
-function getFullname(obj:IFullnameProps):string {
-    return  obj.firstname + obj.lastname;
-}
-
-let names = getFullname({firstname:'xiao',lastname:'wang'});
-```
-
-
-
-扩展,函数接收一个数组， 数组每项按照接口IFullnameProps约定数据类型，返回值一样
-
-```
-function stuList(arr:IFullnameProps[]):IFullnameProps[]{
-    arr.forEach((item)=>{
-        item.firstname = 'hello '+item.firstname;
-    })
-    return arr;
-}
-```
-
-
-
-### 3.函数类型接口
+### 3.接口定义函数的结构
 
 function 接收参数 ， 返回值
 
 函数类型接口就是对函数的约束 ， 也就是对函数的参数和返回值进行约束
 
 使用函数接口类型的时候， 一般使用函数表达式
-
-
-
-没使用接口的函数
-
-```
-const LoginFun = (account:string,password:string)=>{
-    console.log(account);
-    console.log(password);
-}
-```
-
-
 
 **使用函数接口**
 
@@ -566,6 +542,8 @@ var formSubmit:IformFun = function(obj){
 
 let puiuu = formSubmit({account:'aaa',password:'123'})
 ```
+
+
 
 ### 4.可索引接口
 
@@ -611,11 +589,46 @@ console.log(dict["name"]); // "Alice"
 // dict.count = 100; // 错误：不能将 number 赋值给 string
 ```
 
+### 5.接口继承与合并
+
+```
+interface IPerson {
+    name:string
+    age:number
+}
+
+interface IPerson2 extends IPerson {
+    tel:number
+}
+
+let p:IPerson2 = {
+    name:"小明",
+    age:20,
+    tel:213123
+}
+
+或者
+interface IPerson {
+    name:string
+    age:number
+}
+
+interface IPerson {
+    tel:number
+}
+
+let p:IPerson2 = {
+    name:"小明",
+    age:20,
+    tel:213123
+}
+```
 
 
-**type别名**
 
-相当于取一个别名，使用方式：
+## **type别名**
+
+type可以为任意类型创建别名，让代码更简介、可读性更强，同时能更方便地进行类型复用和扩展：
 
 ```
 type Tdata = string;
@@ -628,7 +641,7 @@ var uname1:string | number = 'hello';
 var uname2:string | number = 123;
 ```
 
-使用别名(联合类型) 或
+使用别名(交叉类型) 或
 
 ```
 type Tdata = string | number;
@@ -637,7 +650,23 @@ var uname1:Tdata = 'hello';
 var uname2:Tdata = 123;
 ```
 
+```
+function printdata(data:Tdata):void{
+	console.log(data)
+}
+printdata(1)
+print("1") 都行
 
+type s = "慢" | "快"
+function aaa(data:s){
+
+} 
+aaa("快")  /* 可以选 */
+
+type gender = 0 | 1 
+let sex:gender = 2
+
+```
 
 扩展：
 
@@ -668,52 +697,7 @@ type PersonData = IA1 | IA2;
 var arrNew:PersonData[] = [{name:'xiaohong',role:'普通'},{name:'xiaogang',role:'超级',menus:['首页','用户']}]
 ```
 
-### 5.类类型接口
 
-针对 class 类  的约定， 类类型接口， class类中 主要是属性和方法， 类类型接口主要是针对类中属性和方法的约定
-
-> 需求： 定义一个动物Animal的类， 这个类必须有name，category，color属性   有play和run方法
-
- 
-
-定义一个类 Animal接口
-
-```
-interface IAnimalClass {
-    name:string,
-    category:string,
-    color:string,
-    play:(address:string)=>string ,   // 函数类型的属性
-    run:()=>void
-}
-```
-
-**使用关键字implements类实现一个类的接口**， 也就是说定义类必须按照实现的接口传数据和定义方法
-
-```
-
-// 使用关键字  implements使用接口，严格按照接口定义
-class  Animal implements IAnimalClass {
-    name: string;
-    category:string = '老虎';
-    color:string;
-    constructor(name:string,color:string){
-        this.name = name;
-        this.color = color;
-    }
-    play(address:string){
-        console.log(address);
-        return address
-    }
-    run(){
-        console.log('9999');   
-    }
-}
-
-var an1 = new Animal('小黑','黑色');
-// an1.category
-
-```
 
 ## 课堂练习
 
@@ -783,6 +767,16 @@ let datas = getSuperMan(myUsers);
 console.log(datas);
 ```
 
+补充as关键字：
+
+as是类型断言的关键字，作用是告诉编译器“我确定这个值就是某种类型”，让编译器按指定类型处理，避免类型检查错误。
+
+let a1 = document.getElementById("abc") as HTMLDivElement
+
+a1.innerHTML
+
+a1.onclick = function(){}
+
 
 
 **2、求年龄最小的用户是谁**
@@ -802,4 +796,46 @@ function findMinAge(arr:UManageProps[]):UManageProps{
 let minobj = findMinAge(myUsers);
 console.log(minobj);
 ```
+
+
+
+使用别名(联合类型) 与
+
+```
+interface area {
+    height:number
+    width:number 
+}
+
+type address = {
+    city:string
+    road:string
+    detail:string
+}
+type house = area & address
+
+let myhouse:house = {
+    city:"12",
+    road:"34",
+    detail:"324",
+    height:11,
+    width:32
+}
+```
+
+
+
+### interface与type的区别
+
+相同点：interface和type都可以用于定义对象结构，两者在许多场景中是可以互唤的。
+
+不同点：
+
+1.interface：更专注于定义对象和类、函数的结构，支持继承、合并
+
+2.type：可以定义类型别名、联合类型、交叉类型，但不支持继承和自动合并
+
+
+
+装饰器 不修改原有的结构  新增 新的内容  也就是便于 扩展 好维护（不动原有）
 
