@@ -320,7 +320,7 @@ function process<T>(arg:T):FirstElement<T>{
 const num =process([1,2,3]) //类型 为number
 console.log("🚀 ~ num:", num)//1
 const str =process('hello') //类型为string
-console.log("🚀 ~ str:", str)//hello
+console.log("🚀 ~ str:", str)//🚀 ~ str: hello
      
 
 // 1. **类型安全**：在编译阶段捕获错误（如访问不存在的属性）。
@@ -328,7 +328,85 @@ console.log("🚀 ~ str:", str)//hello
 // 3. **精确类型推导**：IDE 能根据约束提供更准确的类型提示。
 
 
+// {new ( ...args : any[] ) : {} } 验证是不是一个类 
+function withEtr<T extends {new (...args : any[] ) : {} } >(constructor:T){//指定类的为Function不合适
 
+    return class extends constructor{//继承
+        newProperty = 'new property';
+        hello = 'override';
+        sayHello(){
+            return ` ${this.hello} world! `;
+        }
+        toString(){
+            return `${this.newProperty} ${this.sayHello()}(扩展后)`;
+        }
+    }
+}
+
+// ts 装饰器 
+@withEtr
+class Example{
+    constructor(public name:string){}
+    greet(){
+        console.log(`Hello, ${this.name}!`);
+    }
+}
+const example = new Example('World');
+example.greet();// Hello, World!
+example.toString();
+console.log("🚀 ~ example.toString():", example.toString());// new property  override world! (扩展后)
+
+//添加装饰器 额外的去扩展一些方法 
+//添加了@装饰器 上面的函数自动接收这被装饰的类作为参数
+// function withEtr<T extends {new (...args : any[] ) : {} } >(constructor:T)
+// <传入数据类型被T接收了 T要满足可以用new 创建,...args接收任意参数 any[]接收任意数据类型, :{}>只接受对象为返回值
+// return class extends constructor{} 传入了原来的一个类 现在用一个新的类去继承他 ,那么这个新类有原来属性和方法
+// 然后去扩展属性和方法 与原来的类没有关系了 return 返回新的类替换掉原来的类
+
+
+// // 函数装饰器
+// target原型对象 methodName被装饰的那个方法的名字  descriptor是对方法的描述对象，里面有一个value,
+// 就是方法本身。 PropertyDescriptor类型是官方的给的类型 叫 属性描述器
+function Log(target: any, methodName: string, descriptor: PropertyDescriptor):void {
+  const originalMethod = descriptor.value;
+  
+  // 替换原方法
+  descriptor.value = function(...args: any[]) {
+    console.log(`调用了 ${methodName}()`);
+    return originalMethod.apply(this,args);
+  };
+}
+
+class Calculator {
+//   @log // 装饰方法
+  @Log  
+  add2(a: number, b: number) {
+    return a + b;
+  }
+}
+
+new Calculator().add2(1, 2); // 输出: 调用了 add()
+// 属性装饰器
+function uppercase(target: object, propertyKey: string) {
+  let value: string;
+  
+  // 重写属性的 getter/setter
+  Object.defineProperty(target, propertyKey, {
+    get: () => value,
+
+    set: (newValue: string) => {
+      value = newValue.toUpperCase();
+    }
+  });
+}
+
+class Person5 {
+  @uppercase name: string=""; // 装饰属性
+}
+
+const p5 = new Person5();
+p.name = "alice";
+console.log(p.name); // 输出: ALICE
 
 
 

@@ -27,6 +27,44 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
+    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 //导出一个空对象  防止ts编译时报错
 // 不在乎导出什么 只要存在导出 就会被打包成一个独立的模块
@@ -251,4 +289,133 @@ function process(arg) {
 var num = process([1, 2, 3]); //类型 为number
 console.log("🚀 ~ num:", num); //1
 var str = process('hello'); //类型为string
-console.log("🚀 ~ str:", str); //hello
+console.log("🚀 ~ str:", str); //🚀 ~ str: hello
+// 1. **类型安全**：在编译阶段捕获错误（如访问不存在的属性）。
+// 2. **代码复用**：一套逻辑处理多种符合约束的类型。
+// 3. **精确类型推导**：IDE 能根据约束提供更准确的类型提示。
+// {new ( ...args : any[] ) : {} } 验证是不是一个类 
+function withEtr(constructor) {
+    return /** @class */ (function (_super) {
+        __extends(class_1, _super);
+        function class_1() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.newProperty = 'new property';
+            _this.hello = 'override';
+            return _this;
+        }
+        class_1.prototype.sayHello = function () {
+            return " ".concat(this.hello, " world! ");
+        };
+        class_1.prototype.toString = function () {
+            return "".concat(this.newProperty, " ").concat(this.sayHello(), "(\u6269\u5C55\u540E)");
+        };
+        return class_1;
+    }(constructor));
+}
+// ts 装饰器 
+var Example = function () {
+    var _classDecorators = [withEtr];
+    var _classDescriptor;
+    var _classExtraInitializers = [];
+    var _classThis;
+    var Example = _classThis = /** @class */ (function () {
+        function Example_1(name) {
+            this.name = name;
+        }
+        Example_1.prototype.greet = function () {
+            console.log("Hello, ".concat(this.name, "!"));
+        };
+        return Example_1;
+    }());
+    __setFunctionName(_classThis, "Example");
+    (function () {
+        var _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+        __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
+        Example = _classThis = _classDescriptor.value;
+        if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        __runInitializers(_classThis, _classExtraInitializers);
+    })();
+    return Example = _classThis;
+}();
+var example = new Example('World');
+example.greet(); // Hello, World!
+example.toString();
+console.log("🚀 ~ example.toString():", example.toString()); // new property  override world! (扩展后)
+//添加装饰器 额外的去扩展一些方法 
+//添加了@装饰器 上面的函数自动接收这被装饰的类作为参数
+// function withEtr<T extends {new (...args : any[] ) : {} } >(constructor:T)
+// <传入数据类型被T接收了 T要满足可以用new 创建,...args接收任意参数 any[]接收任意数据类型, :{}>只接受对象为返回值
+// return class extends constructor{} 传入了原来的一个类 现在用一个新的类去继承他 ,那么这个新类有原来属性和方法
+// 然后去扩展属性和方法 与原来的类没有关系了 return 返回新的类替换掉原来的类
+// // 函数装饰器
+// target原型对象 methodName被装饰的那个方法的名字  descriptor是对方法的描述对象，里面有一个value,
+// 就是方法本身。 PropertyDescriptor类型是官方的给的类型 叫 属性描述器
+function Log(target, methodName, descriptor) {
+    var originalMethod = descriptor.value;
+    // 替换原方法
+    descriptor.value = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        console.log("\u8C03\u7528\u4E86 ".concat(methodName, "()"));
+        return originalMethod.apply(this, args);
+    };
+}
+var Calculator = function () {
+    var _a;
+    var _instanceExtraInitializers = [];
+    var _add2_decorators;
+    return _a = /** @class */ (function () {
+            function Calculator() {
+                __runInitializers(this, _instanceExtraInitializers);
+            }
+            //   @log // 装饰方法
+            Calculator.prototype.add2 = function (a, b) {
+                return a + b;
+            };
+            return Calculator;
+        }()),
+        (function () {
+            var _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+            _add2_decorators = [Log];
+            __esDecorate(_a, null, _add2_decorators, { kind: "method", name: "add2", static: false, private: false, access: { has: function (obj) { return "add2" in obj; }, get: function (obj) { return obj.add2; } }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+}();
+new Calculator().add2(1, 2); // 输出: 调用了 add()
+// 属性装饰器
+function uppercase(target, propertyKey) {
+    var value;
+    // 重写属性的 getter/setter
+    Object.defineProperty(target, propertyKey, {
+        get: function () { return value; },
+        set: function (newValue) {
+            value = newValue.toUpperCase();
+        }
+    });
+}
+var Person5 = function () {
+    var _a;
+    var _name_decorators;
+    var _name_initializers = [];
+    var _name_extraInitializers = [];
+    return _a = /** @class */ (function () {
+            function Person5() {
+                this.name = __runInitializers(this, _name_initializers, ""); // 装饰属性
+                __runInitializers(this, _name_extraInitializers);
+            }
+            return Person5;
+        }()),
+        (function () {
+            var _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
+            _name_decorators = [uppercase];
+            __esDecorate(null, null, _name_decorators, { kind: "field", name: "name", static: false, private: false, access: { has: function (obj) { return "name" in obj; }, get: function (obj) { return obj.name; }, set: function (obj, value) { obj.name = value; } }, metadata: _metadata }, _name_initializers, _name_extraInitializers);
+            if (_metadata) Object.defineProperty(_a, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        })(),
+        _a;
+}();
+var p5 = new Person5();
+p.name = "alice";
+console.log(p.name); // 输出: ALICE
